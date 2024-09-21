@@ -10,7 +10,7 @@ iexplore_exe db "iexplore.exe", 0
 .code
 
 target_handler_ASM proc
-	sub rsp, 28h
+    sub rsp, 28h
     jmp code_start
 
 ; This is the exact code from target, but it can not be executed here due to different call/jump addresses
@@ -47,7 +47,7 @@ notfound:
     mov edx, 0
 return:
     movsxd rax, edx
-	add rsp, 28h
+    add rsp, 28h
     ret
 
     db 12 dup(0cch)

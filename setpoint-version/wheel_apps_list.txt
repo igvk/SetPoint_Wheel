@@ -1,7 +1,11 @@
-; Smooth scrolling wheel apps filenames list: %APPDATA%\logitech\wheel_apps_list.txt
+; Smooth scrolling wheel apps filenames list: %APPDATA%\Logitech\SetPoint\wheel_apps_list.txt
 ; (shell wildcards '*', '?' can be used, '-' at line start means exclusion, ';' is comment line)
-explorer.exe
+firefox.exe
+chrome.exe
+; explorer - not recommended due to poor handling of ALt-Tab switching
+;explorer.exe
 SystemSettings.exe
+Taskmgr.exe
 notepad.exe
 winword.exe
 excel.exe
@@ -12,10 +16,10 @@ discord.exe
 Signal.exe
 Acrobat*
 FoxitPDFEditor*
-Photoshop.exe
 SystemInformer.exe
 devenv.exe
 code.exe
 GitHubDesktop.exe
-; Steam
+Photoshop.exe
+calibre.exe
 steamwebhelper.exe
