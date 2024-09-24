@@ -1,12 +1,10 @@
 #include <mutex>            // std::{once_flag, call_once}
 #include <string>
 #include <fstream>
-#include <iostream>
 #include <vector>
 #include <algorithm>
-#include <intrin.h>
+#include <cwctype>
 #include <shlobj.h>
-#include <shlwapi.h>
 #include <windows.h>
 #include <KnownFolders.h>
 #include <TlHelp32.h>
@@ -41,12 +39,12 @@
 #endif
 
 const wchar_t setpoint_process_name[] = PROGRAM_NAME;
-constexpr byte setpoint_target_code_V690[] = { TARGET_MACHINE_CODE_V690 };
-constexpr size_t setpoint_hook_code_disp_V690 = HOOK_CODE_DISP_V690;
-constexpr size_t setpoint_return_code_disp_V690 = RETURN_CODE_DISP_V690;
-constexpr byte setpoint_branch_code_V690[] = { BRANCH_MACHINE_CODE_V690 };
-constexpr size_t setpoint_branch_code_disp_V690 = BRANCH_CODE_DISP_V690;
-constexpr long code_memory_protection = PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+const byte setpoint_target_code_V690[] = { TARGET_MACHINE_CODE_V690 };
+const size_t setpoint_hook_code_disp_V690 = HOOK_CODE_DISP_V690;
+const size_t setpoint_return_code_disp_V690 = RETURN_CODE_DISP_V690;
+const byte setpoint_branch_code_V690[] = { BRANCH_MACHINE_CODE_V690 };
+const size_t setpoint_branch_code_disp_V690 = BRANCH_CODE_DISP_V690;
+const long code_memory_protection = PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
 
 unsigned int module_patch_check = 3;
 
@@ -179,10 +177,11 @@ namespace
                 {
                     if (line.empty())
                         continue;
-                    std::ranges::transform(
-                        line,
+                    std::transform(
                         line.begin(),
-                        [](const wchar_t c) { return static_cast<wchar_t>(std::tolower(c)); }
+                        line.end(),
+                        line.begin(),
+                        [](const wchar_t c) { return std::towlower(c); }
                     );
                     switch (line[0])
                     {
@@ -225,8 +224,8 @@ namespace
         {
             DEBUG_TRACE("Exe path is %ls", exePath);
 
-            const size_t processNameLen = wcsnlen(setpoint_process_name, std::size(exePath));
-            if (exePathLen >= processNameLen && wcsncmp(exePath + exePathLen - processNameLen, setpoint_process_name, std::size(exePath)) == 0)
+            const size_t processNameLen = wcsnlen(setpoint_process_name, MAX_PATH);
+            if (exePathLen >= processNameLen && wcsncmp(exePath + exePathLen - processNameLen, setpoint_process_name, MAX_PATH) == 0)
             {
                 MEMORY_BASIC_INFORMATION mbi;
 
@@ -298,14 +297,14 @@ namespace
         const auto w64 = isWin64();
         DEBUG_TRACE(L"init : isWin64=%d", w64);
         if (w64)
-            GetSystemDirectoryW(systemDirectory, std::size(systemDirectory));
+            GetSystemDirectoryW(systemDirectory, MAX_PATH);
         else
-            GetSystemWow64DirectoryW(systemDirectory, std::size(systemDirectory));
+            GetSystemWow64DirectoryW(systemDirectory, MAX_PATH);
         DEBUG_TRACE(L"init : systemDirectory=\"%s\"", systemDirectory);
 
         {
             wchar_t moduleFullpathFilename[MAX_PATH + 1];
-            GetModuleFileNameW(hModule, moduleFullpathFilename, std::size(moduleFullpathFilename));
+            GetModuleFileNameW(hModule, moduleFullpathFilename, MAX_PATH);
             DEBUG_TRACE(L"init : moduleFullpathFilename=\"%s\"", moduleFullpathFilename);
 
             wchar_t fname[_MAX_FNAME + 1];

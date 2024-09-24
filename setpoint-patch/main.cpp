@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <intrin.h>
+#include <cwctype>
 #include <shlobj.h>
 #include <windows.h>
 #include <KnownFolders.h>
@@ -40,12 +40,12 @@
 #define MAX_PATCH_CODE_DISP 0x20
 #endif
 
-constexpr byte setpoint_target_code_ASM[] = { TARGET_MACHINE_CODE_ASM };
-constexpr size_t setpoint_hook_code_disp_ASM = HOOK_CODE_DISP_ASM;
-constexpr size_t setpoint_return_code_disp_ASM = RETURN_CODE_DISP_ASM;
-constexpr byte setpoint_branch_code_ASM[] = { BRANCH_MACHINE_CODE_ASM };
-constexpr size_t setpoint_branch_code_disp_ASM = BRANCH_CODE_DISP_ASM;
-constexpr long code_memory_protection = PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+const byte setpoint_target_code_ASM[] = { TARGET_MACHINE_CODE_ASM };
+const size_t setpoint_hook_code_disp_ASM = HOOK_CODE_DISP_ASM;
+const size_t setpoint_return_code_disp_ASM = RETURN_CODE_DISP_ASM;
+const byte setpoint_branch_code_ASM[] = { BRANCH_MACHINE_CODE_ASM };
+const size_t setpoint_branch_code_disp_ASM = BRANCH_CODE_DISP_ASM;
+const long code_memory_protection = PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
 
 std::vector<std::wstring> enabled_names;
 std::vector<std::wstring> disabled_names;
@@ -111,10 +111,11 @@ void read_config()
             {
                 if (line.empty())
                     continue;
-                std::ranges::transform(
-                    line,
+                std::transform(
                     line.begin(),
-                    [](const wchar_t c) { return static_cast<char>(std::tolower(c)); }
+                    line.end(),
+                    line.begin(),
+                    [](const wchar_t c) { return std::towlower(c); }
                 );
                 switch (line[0])
                 {
@@ -195,8 +196,8 @@ void hook_current_process()
     else
     {
         DEBUG_TRACE("Exe path is %ls", exePath);
-        const size_t processNameLen = wcsnlen(setpoint_process_name, std::size(exePath));
-        if (exePathLen >= processNameLen && wcsncmp(exePath + exePathLen - processNameLen, setpoint_process_name, std::size(exePath)) == 0)
+        const size_t processNameLen = wcsnlen(setpoint_process_name, MAX_PATH);
+        if (exePathLen >= processNameLen && wcsncmp(exePath + exePathLen - processNameLen, setpoint_process_name, MAX_PATH) == 0)
         {
             /*
             SYSTEM_INFO sys_info;

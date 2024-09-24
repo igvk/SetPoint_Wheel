@@ -19,7 +19,7 @@ void loadGenuineDll(const wchar_t* systemDirectory) {
     // systemDirectory : "C:\Windows\System32"
     // fullpathDllName : "C:\Windows\System32\<dllFname>.dll"
     wchar_t fullpathDllName[MAX_PATH];
-    int n = swprintf_s(fullpathDllName, std::size(fullpathDllName), L"%s\\%s.dll", systemDirectory, dllFname);
+    int n = swprintf_s(fullpathDllName, MAX_PATH, L"%s\\%s.dll", systemDirectory, dllFname);
     if (n >= MAX_PATH)
         fullpathDllName[MAX_PATH - 1] = L'\0';
     DEBUG_TRACE(L"loadGenuineDll : fullpathDllName = %s", fullpathDllName);
